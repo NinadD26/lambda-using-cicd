@@ -1,0 +1,26 @@
+version: 0.2
+ 
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - echo "Installing dependencies"
+      - pip install -r requirements.txt -t .
+ 
+  build:
+    commands:
+      - echo "Building the Lambda function package"
+      - zip -r lambda_function.zip .    # Zipping all contents of the Lambda function directory
+ 
+  post_build:
+    commands:
+      - echo "Build completed. Listing files in the directory"
+      - ls -l   # Listing files to check the presence of lambda_function.zip
+      #- aws s3 cp lambda_function.zip s3://sandboxacc-bkt/lambda_function.zip
+      # - aws lambda update-function-code --function-name cicd-lambda --s3-bucket sandboxacc-bkt --s3-key lambda_function.zip
+      - aws lambda update-function-code --function-name  cicd-lambda --zip-file fileb://lambda_function.zip
+ 
+artifacts:
+  files:
+    - lambda_function.zip
